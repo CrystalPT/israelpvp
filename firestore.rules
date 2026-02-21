@@ -1,0 +1,21 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Allow anyone to read players and punishments
+    match /players/{playerId} {
+      allow read: if true;
+      allow write: if false; // Only admin should write via Firebase Admin or secure functions
+    }
+    
+    match /punishments/{punishmentId} {
+      allow read: if true;
+      allow write: if false; // Only admin should write
+    }
+    
+    // Example: Allow users to update their own profile if authenticated
+    // match /players/{playerId} {
+    //   allow update: if request.auth != null && request.auth.uid == playerId;
+    // }
+  }
+}
