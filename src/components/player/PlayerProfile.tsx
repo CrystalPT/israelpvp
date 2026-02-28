@@ -172,7 +172,7 @@ export function PlayerProfile({ player }: PlayerProfileProps) {
                                                                 <div className="flex items-center gap-2">
                                                                     <TierBadge tier={tier.current} retired={tier.retired} size="md" className="px-3 py-0.5 font-black italic shadow-lg" />
                                                                     {tier.retired && (
-                                                                        <span className="text-[8px] font-black text-zinc-600 uppercase border border-zinc-700/50 px-1.5 rounded-sm">Legacy</span>
+                                                                        <span className="text-[8px] font-black text-zinc-600 uppercase border border-zinc-700/50 px-1.5 rounded-sm">Past</span>
                                                                     )}
                                                                 </div>
                                                             ) : (
@@ -232,7 +232,7 @@ export function PlayerProfile({ player }: PlayerProfileProps) {
                                             <TierBadge tier={peakInfo.tier} size="lg" className="shadow-lg" />
                                             <div className="flex flex-col">
                                                 <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">{peakInfo.mode}</span>
-                                                <span className="text-white font-black italic">Legacy Best</span>
+                                                <span className="text-white font-black italic">All-time Best</span>
                                             </div>
                                         </div>
                                     </div>
