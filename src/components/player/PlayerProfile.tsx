@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect, useMemo } from "react";
 import { Player, GameMode } from "@/types";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { getFullSkinRenderUrl } from "@/utils/mojang-api";
 import { motion } from "framer-motion";
-import { Trophy, Zap, ShieldCheck, History, ArrowLeft } from "lucide-react";
+import { Trophy, Zap, ShieldCheck, History, ArrowLeft, Star, Calendar } from "lucide-react";
+import { format } from "date-fns";
 import Link from "next/link";
 
 interface PlayerProfileProps {
@@ -44,6 +46,32 @@ export function PlayerProfile({ player }: PlayerProfileProps) {
 
         return orderA - orderB;
     });
+
+    // Calculate most recent test date
+    const allTestDates = Object.values(player.tiers)
+        .map(t => t.lastTestedAt)
+        .filter((t): t is number => !!t);
+    const lastTestDate = allTestDates.length > 0 ? Math.max(...allTestDates) : null;
+
+    // Find overall peak tier
+    const peakInfo = useMemo(() => {
+        let bestTier: Tier | null = null;
+        let bestMode: GameMode | null = null;
+
+        Object.entries(player.tiers).forEach(([mode, data]) => {
+            if (!data.peak) return;
+            const currentOrder = TIER_ORDER[data.peak] ?? 99;
+            const bestOrder = bestTier ? (TIER_ORDER[bestTier] ?? 99) : 100;
+
+            if (currentOrder < bestOrder) {
+                bestTier = data.peak;
+                bestMode = mode as GameMode;
+            }
+        });
+
+        return { tier: bestTier, mode: bestMode };
+    }, [player.tiers]);
+
     return (
         <div className="max-w-7xl mx-auto px-4 py-12">
             {/* Back Button */}
@@ -176,9 +204,9 @@ export function PlayerProfile({ player }: PlayerProfileProps) {
                             </div>
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900/40 border border-white/5">
-                                    <span className="text-zinc-400 font-bold">Verification</span>
-                                    <span className="text-green-500 font-black text-xs uppercase tracking-widest flex items-center gap-2">
-                                        <ShieldCheck className="w-4 h-4" /> Verified
+                                    <span className="text-zinc-400 font-bold">Last Test</span>
+                                    <span className="text-primary font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                        <Calendar className="w-4 h-4" /> {lastTestDate ? format(lastTestDate, 'dd/MM') : 'N/A'}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between p-4 rounded-2xl bg-zinc-900/40 border border-white/5">
@@ -188,12 +216,32 @@ export function PlayerProfile({ player }: PlayerProfileProps) {
                             </div>
                         </div>
 
-                        <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[40px] p-8 flex flex-col justify-center">
-                            <Zap className="w-10 h-10 text-primary mb-4" fill="currentColor" />
-                            <h3 className="text-2xl font-black text-white mb-2">IsraelPVP Legend</h3>
-                            <p className="text-zinc-400 text-sm leading-relaxed font-medium">
-                                Legendary status is awarded to players who have held multiple HT1 titles or consistently placed in the Top 3 for over 6 months.
-                            </p>
+                        <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[40px] p-8 flex flex-col justify-center relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
+                                <Star className="w-24 h-24 text-primary" fill="currentColor" />
+                            </div>
+                            <div className="relative z-10">
+                                <Star className="w-10 h-10 text-primary mb-4" fill="currentColor" />
+                                <h3 className="text-2xl font-black text-white mb-2">Peak Performance</h3>
+                                {peakInfo.tier ? (
+                                    <div className="space-y-4">
+                                        <p className="text-zinc-400 text-sm leading-relaxed font-medium">
+                                            Highest rank achieved across all competitive gamemodes.
+                                        </p>
+                                        <div className="flex items-center gap-4 p-4 bg-black/40 rounded-2xl border border-white/5">
+                                            <TierBadge tier={peakInfo.tier} size="lg" className="shadow-lg" />
+                                            <div className="flex flex-col">
+                                                <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em]">{peakInfo.mode}</span>
+                                                <span className="text-white font-black italic">Legacy Best</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className="text-zinc-400 text-sm leading-relaxed font-medium">
+                                        Start competing in seasonal gamemodes to establish your peak performance records.
+                                    </p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </motion.div>
