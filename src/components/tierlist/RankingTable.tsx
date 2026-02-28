@@ -116,7 +116,7 @@ export function RankingTable({ players }: RankingTableProps) {
                                     if (!champion) return (
                                         <div className="p-12 text-center border border-dashed border-white/5 rounded-[40px] bg-black/20">
                                             <p className="text-zinc-500 font-bold uppercase tracking-widest">
-                                                No {selectedMode === 'Overall' ? 'players' : 'HT1 player'} currently recorded
+                                                No {selectedMode === 'Overall' ? 'players' : 'HT1 player'} currently tested
                                             </p>
                                         </div>
                                     );
@@ -331,7 +331,7 @@ export function RankingTable({ players }: RankingTableProps) {
                                                         <div className="w-10 h-10 flex items-center justify-center font-black text-zinc-700 text-xl group-hover:text-primary italic">
                                                             #{getPlayerGlobalRank(player.uuid)}
                                                         </div>
-                                                        <img src={getPlayerSkinUrl(player.uuid)} className="w-14 h-14 rounded-2xl bg-zinc-900 border border-white/5" />
+                                                        <img src={getPlayerSkinUrl(player.uuid)} className="w-14 h-14 rounded-2xl bg-zinc-900 border border-white/5 transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110" />
                                                         <div className="flex flex-col">
                                                             <span className="font-black text-white group-hover:text-primary transition-colors">{player.username}</span>
                                                             <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Active Veteran</span>
@@ -357,13 +357,23 @@ export function RankingTable({ players }: RankingTableProps) {
                                         { id: 'HT3', label: 'High Tier 3' }
                                     ].map((tier) => (
                                         <section key={tier.id} className="space-y-4">
-                                            <div className="flex items-center gap-2 px-2">
-                                                <Star className="w-4 h-4 text-primary" />
-                                                <h3 className="text-sm font-black text-zinc-400 uppercase tracking-[0.2em]">{tier.label}</h3>
+                                            <div className="flex items-center justify-between px-2">
+                                                <div className="flex items-center gap-2">
+                                                    <Star className="w-4 h-4 text-primary" />
+                                                    <h3 className="text-sm font-black text-zinc-400 uppercase tracking-[0.2em]">{tier.label}</h3>
+                                                </div>
+                                                {groupedPlayers[tier.id].length > 8 && (
+                                                    <Link
+                                                        href={`/${selectedMode.replace(/ /g, '-')}/${tier.id}`}
+                                                        className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
+                                                    >
+                                                        View All
+                                                    </Link>
+                                                )}
                                             </div>
                                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 {groupedPlayers[tier.id].length > 0 ? (
-                                                    groupedPlayers[tier.id].map((player) => (
+                                                    groupedPlayers[tier.id].slice(0, 8).map((player) => (
                                                         <Link
                                                             key={player.uuid}
                                                             href={`/player/${player.uuid}`}
@@ -397,12 +407,22 @@ export function RankingTable({ players }: RankingTableProps) {
 
                                 {/* BOTTOM SECTION: Development Tiers (LT3 - LT5) */}
                                 <section className="space-y-6">
-                                    <div className="flex items-center gap-2 px-2 border-b border-white/5 pb-4">
-                                        <Users className="w-4 h-4 text-zinc-600" />
-                                        <h3 className="text-sm font-black text-zinc-600 uppercase tracking-[0.3em]">Rising Ranks (Tier 3-5)</h3>
+                                    <div className="flex items-center justify-between px-2 border-b border-white/5 pb-4">
+                                        <div className="flex items-center gap-2">
+                                            <Users className="w-4 h-4 text-zinc-600" />
+                                            <h3 className="text-sm font-black text-zinc-600 uppercase tracking-[0.3em]">Rising Ranks (Tier 3-5)</h3>
+                                        </div>
+                                        {['LT3', 'HT4', 'LT4', 'HT5', 'LT5'].flatMap(t => groupedPlayers[t]).length > 30 && (
+                                            <Link
+                                                href={`/${selectedMode.replace(/ /g, '-')}/Rising`}
+                                                className="text-[10px] font-black uppercase tracking-widest text-primary hover:text-primary/80 transition-colors"
+                                            >
+                                                View All
+                                            </Link>
+                                        )}
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-                                        {['LT3', 'HT4', 'LT4', 'HT5', 'LT5'].flatMap(t => groupedPlayers[t]).map((player, idx) => (
+                                        {['LT3', 'HT4', 'LT4', 'HT5', 'LT5'].flatMap(t => groupedPlayers[t]).slice(0, 30).map((player, idx) => (
                                             <Link
                                                 key={player.uuid + idx}
                                                 href={`/player/${player.uuid}`}
@@ -467,7 +487,7 @@ export function RankingTable({ players }: RankingTableProps) {
                                                 <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-widest leading-none mb-1 group-hover:text-primary/70 transition-colors">Global</span>
                                                 <span className="font-black text-zinc-300 leading-none group-hover:text-primary transition-colors">#{getPlayerGlobalRank(player.uuid)}</span>
                                             </div>
-                                            <img src={getPlayerSkinUrl(player.uuid)} className="w-14 h-14 rounded-2xl bg-zinc-900 border border-white/5 shadow-md group-hover:scale-105 transition-transform shrink-0" />
+                                            <img src={getPlayerSkinUrl(player.uuid)} className="w-14 h-14 rounded-2xl bg-zinc-900 border border-white/5 shadow-md transition-transform duration-300 group-hover:rotate-3 group-hover:scale-110 shrink-0" />
                                             <div className="flex flex-col min-w-0 pr-4">
                                                 <span className="font-black text-white group-hover:text-primary transition-colors text-lg tracking-tight truncate">{player.username}</span>
                                                 {selectedMode !== 'Overall' ? (
